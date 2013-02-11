@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function usage() {
+    echo "git vault add <name> <location>"
+}
+
+if [[ $# < 1 ]]; then
+    usage
+    exit
+fi
+
+case $1 in
+    "add")
+        if [[ $# < 3 ]]; then
+            usage
+            exit
+        fi
+        git remote add $2 "ext::gitvault %S $3"
+        ;;
+    *)
+        usage
+        exit
+        ;;
+esac
