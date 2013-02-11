@@ -49,6 +49,23 @@ function decrypt() {
     return $rc
 }
 
+function set_enc_options()
+{
+    vault=$1
+
+    if ! git config vault.$vault-options >/dev/null 2>/dev/null; then
+        if ! git config vault.$vault.password >/dev/null 2>/dev/null; then
+            print "Set your vault password:"
+            print "  $ git config vault.$vault.password <password>"
+            exit
+        else
+            enc_opts="-aes-128-cbc -pass pass:$(git config vault.$vault.password)"
+        fi
+    else
+        enc_opts="$(git config vault.$vault.enc-options)"
+    fi
+}
+
 function create_repo() {
     url=$1
 
@@ -115,18 +132,7 @@ case $1 in
         command=$3
         url=$4
 
-        if ! git config vault.$vault-options >/dev/null 2>/dev/null; then
-            if ! git config vault.$vault.password >/dev/null 2>/dev/null; then
-                print "Set your vault password:"
-                print "  $ git config vault.$vault.password <password>"
-                exit
-            else
-                enc_opts="-aes-128-cbc -pass pass:$(git config vault.$vault.password)"
-            fi
-        else
-            enc_opts="$(git config vault.$vault.enc-options)"
-        fi
-
+        set_enc_options $vault
 
         if [ ! -f $url ]; then
             create_repo $url
