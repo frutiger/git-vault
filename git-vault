@@ -48,6 +48,19 @@ function create_repo() {
     rm -rf $tempdir
 }
 
+function wrap() {
+    command=$1
+    url=$2
+
+    tempdir=$(mktemp -d -t git-vault)
+
+    decrypt $tempdir $url     && \
+        $command $tempdir     && \
+        encrypt $url $tempdir
+
+    rm -rf $tempdir
+}
+
 if [[ $# < 1 ]]; then
     usage
     exit
@@ -103,11 +116,7 @@ case $1 in
             create_repo $url
         fi
 
-        tempdir=$(mktemp -d -t git-vault)
-        decrypt $tempdir $url     && \
-            $command $tempdir     && \
-            encrypt $url $tempdir &&
-        rm -rf $tempdir
+        wrap $command $url
         ;;
     *)
         usage
