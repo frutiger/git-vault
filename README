@@ -1,23 +1,24 @@
 A transparent git repository encryption/decryption mechanism
 
-gitvault acts as git remote that transparently encrypts and decrypts a git
+'git-vault' acts as git remote that transparently encrypts and decrypts a git
 repository. This is useful for transporting git repositories over unsafe means
 (e.g. sneakernet) between trusted hosts.
 
 Usage:
-  1. Add the 'gitvault' repository path to your PATH environment variable
-  2. Add a GITVAULT_PASSWORD environment variable that will hold the password
-     used for encryption
-  3. From an existing git repository, run
+  1. Add 'git-vault' to your PATH
+  2. From an existing git repository (init it if you need to), run:
      $ git vault add <name> <location>
+  3. Set your vault password:
+     $ git config vault.<name>.password <password>
   4. Use `git push <name> <branch>` and `git fetch <name>` as usual.
 
 <location> will now contain an encrypted version of your repository.
 
 Notes:
-  gitvault invokes `openssl enc` with
-    -aes-128-cbc -pass pass:$GITVAULT_PASSWORD
-  but if you want to use your own invocation, set GITVAULT_ENC_OPTIONS
+  'git-vault' invokes `openssl enc` with:
+    -aes-128-cbc -pass pass:<password>
+  but if you want to use your own invocation, set the options yourself:
+    git config vault.<name>.enc-options "<options>"
 
 Known issues:
   <location> must be an absolute path

@@ -1,7 +1,19 @@
 #!/bin/bash
 
+print() {
+    echo git-vault: "$@" 1>&2
+}
+
+trace() {
+    if [ $GIT_VAULT_TRACE ]; then
+        print "$@"
+    fi
+    return 0
+}
+
 function usage() {
     echo "git vault add <name> <location>"
+    echo "git vault wrap <name> <command> <location>"
 }
 
 if [[ $# < 1 ]]; then
@@ -9,13 +21,78 @@ if [[ $# < 1 ]]; then
     exit
 fi
 
+function encrypt() {
+    archive=$(mktemp -t git-vault)
+
+    tar -c -f $archive -C $2 .                     && \
+        trace "archived: $2 -> $archive"           && \
+        openssl enc $enc_opts -in $archive -out $1 && \
+        trace "encrypted: $archive -> $1"
+
+    rm $archive
+}
+
+function decrypt() {
+    archive=$(mktemp -t git-vault)
+
+    openssl enc $enc_opts -in $2 -out $archive -d && \
+        trace "decrypted: $2 -> $archive"         && \
+        tar -x -f $archive -C $1                  && \
+        trace "extracted: $archive -> $1"
+
+    rm $archive
+}
+
+function create_repo() {
+    tempdir=$(mktemp -d -t git-vault)
+
+    git init --bare $tempdir >/dev/null && \
+        encrypt $1 $tempdir
+
+    rm -rf $tempdir
+}
+
 case $1 in
     "add")
         if [[ $# < 3 ]]; then
             usage
             exit
         fi
-        git remote add $2 "ext::gitvault %S $3"
+
+        git remote add $2 "ext::git vault wrap $2 %S $3"
+        ;;
+    "wrap")
+        if [[ $# < 4 ]]; then
+            usage
+            exit
+        fi
+
+        remote=$2
+        command=$3
+        url=$4
+
+        if ! git config vault.$remote.enc-options >/dev/null 2>/dev/null; then
+            if ! git config vault.$remote.password >/dev/null 2>/dev/null; then
+                print "Set your vault password:"
+                print "  $ git config vault.$remote.password <password>"
+                exit
+            else
+                enc_opts="-aes-128-cbc -pass pass:$(git config vault.$remote.password)"
+            fi
+        else
+            enc_opts="$(git config vault.$remote.enc-options)"
+        fi
+
+
+        if [ ! -f $url ]; then
+            create_repo $url
+        fi
+
+        tempdir=$(mktemp -d -t git-vault)
+        decrypt $tempdir $url     && \
+            $command $tempdir     && \
+            encrypt $url $tempdir &&
+        rm -rf $tempdir
         ;;
     *)
         usage
