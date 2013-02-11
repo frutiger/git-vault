@@ -22,5 +22,3 @@ Notes:
   but if you want to use your own invocation, set the options yourself:
     git config vault.<name>.enc-options "<options>"
 
-Known issues:
-  <location> must be an absolute path
