@@ -59,7 +59,10 @@ case $1 in
             exit
         fi
 
-        git remote add $2 "ext::git vault wrap $2 %S $3"
+        vault=$2
+        url=$3
+
+        git remote add $vault "ext::git vault wrap $vault %S $url"
         ;;
     "wrap")
         if [[ $# < 4 ]]; then
@@ -67,20 +70,20 @@ case $1 in
             exit
         fi
 
-        remote=$2
+        vault=$2
         command=$3
         url=$4
 
-        if ! git config vault.$remote.enc-options >/dev/null 2>/dev/null; then
-            if ! git config vault.$remote.password >/dev/null 2>/dev/null; then
+        if ! git config vault.$vault-options >/dev/null 2>/dev/null; then
+            if ! git config vault.$vault.password >/dev/null 2>/dev/null; then
                 print "Set your vault password:"
-                print "  $ git config vault.$remote.password <password>"
+                print "  $ git config vault.$vault.password <password>"
                 exit
             else
-                enc_opts="-aes-128-cbc -pass pass:$(git config vault.$remote.password)"
+                enc_opts="-aes-128-cbc -pass pass:$(git config vault.$vault.password)"
             fi
         else
-            enc_opts="$(git config vault.$remote.enc-options)"
+            enc_opts="$(git config vault.$vault.enc-options)"
         fi
 
 
