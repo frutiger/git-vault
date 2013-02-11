@@ -27,8 +27,10 @@ function encrypt() {
         trace "archived: $repo -> $archive"          && \
         openssl enc $enc_opts -in $archive -out $url && \
         trace "encrypted: $archive -> $url"
+    rc=$?
 
     rm $archive
+    return $rc
 }
 
 function decrypt() {
@@ -41,8 +43,10 @@ function decrypt() {
         trace "decrypted: $url -> $archive"         && \
         tar -x -f $archive -C $repo                 && \
         trace "extracted: $archive -> $repo"
+    rc=$?
 
     rm $archive
+    return $rc
 }
 
 function create_repo() {
@@ -52,8 +56,10 @@ function create_repo() {
 
     git init --bare $tempdir >/dev/null && \
         encrypt $url $tempdir
+    rc=$?
 
     rm -rf $tempdir
+    return $rc
 }
 
 function wrap() {
@@ -65,8 +71,10 @@ function wrap() {
     decrypt $tempdir $url     && \
         $command $tempdir     && \
         encrypt $url $tempdir
+    rc=$?
 
     rm -rf $tempdir
+    return $rc
 }
 
 if [[ $# < 1 ]]; then
