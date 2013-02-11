@@ -8,7 +8,6 @@ trace() {
     if [ $GIT_VAULT_TRACE ]; then
         print "$@"
     fi
-    return 0
 }
 
 function usage() {
