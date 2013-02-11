@@ -1,6 +1,6 @@
 A transparent git repository encryption/decryption mechanism
 
-'git-vault' acts as git remote that transparently encrypts and decrypts a git
+'git-vault' acts as a git remote that transparently encrypts and decrypts a git
 repository. This is useful for transporting git repositories over unsafe means
 (e.g. sneakernet) between trusted hosts.
 
