@@ -16,11 +16,6 @@ function usage() {
     echo "git vault wrap <name> <command> <location>"
 }
 
-if [[ $# < 1 ]]; then
-    usage
-    exit
-fi
-
 function encrypt() {
     archive=$(mktemp -t git-vault)
 
@@ -51,6 +46,11 @@ function create_repo() {
 
     rm -rf $tempdir
 }
+
+if [[ $# < 1 ]]; then
+    usage
+    exit
+fi
 
 case $1 in
     "add")
