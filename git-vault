@@ -18,32 +18,40 @@ function usage() {
 }
 
 function encrypt() {
+    url=$1
+    repo=$2
+
     archive=$(mktemp -t git-vault)
 
-    tar -c -f $archive -C $2 .                     && \
-        trace "archived: $2 -> $archive"           && \
-        openssl enc $enc_opts -in $archive -out $1 && \
-        trace "encrypted: $archive -> $1"
+    tar -c -f $archive -C $repo .                    && \
+        trace "archived: $repo -> $archive"          && \
+        openssl enc $enc_opts -in $archive -out $url && \
+        trace "encrypted: $archive -> $url"
 
     rm $archive
 }
 
 function decrypt() {
+    repo=$1
+    url=$2
+
     archive=$(mktemp -t git-vault)
 
-    openssl enc $enc_opts -in $2 -out $archive -d && \
-        trace "decrypted: $2 -> $archive"         && \
-        tar -x -f $archive -C $1                  && \
-        trace "extracted: $archive -> $1"
+    openssl enc $enc_opts -in $url -out $archive -d && \
+        trace "decrypted: $url -> $archive"         && \
+        tar -x -f $archive -C $repo                 && \
+        trace "extracted: $archive -> $repo"
 
     rm $archive
 }
 
 function create_repo() {
+    url=$1
+
     tempdir=$(mktemp -d -t git-vault)
 
     git init --bare $tempdir >/dev/null && \
-        encrypt $1 $tempdir
+        encrypt $url $tempdir
 
     rm -rf $tempdir
 }
