@@ -116,8 +116,8 @@ case $1 in
 
         vault=$2
 
-        git remote rm $vault
-        git config --remove-section vault.$vault
+        git config --remove-section vault.$vault && \
+            git remote rm $vault
         ;;
     "wrap")
         if [[ $# < 4 ]]; then
