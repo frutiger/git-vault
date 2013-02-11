@@ -10,7 +10,7 @@ Usage:
      $ git vault add <name> <location>
   3. Set your vault password:
      $ git config vault.<name>.password <password>
-  4. Use `git push <name> <branch>` and `git fetch <name>` as usual.
+  4. Use `git push <name> ...` and `git fetch <name> ...` as usual.
   5. If you want to remove the vault:
      $ git vault rm <name>
 
