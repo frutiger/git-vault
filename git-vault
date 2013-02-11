@@ -13,6 +13,7 @@ trace() {
 
 function usage() {
     echo "git vault add <name> <location>"
+    echo "git vault rm <name>"
     echo "git vault wrap <name> <command> <location>"
 }
 
@@ -63,6 +64,17 @@ case $1 in
         url=$3
 
         git remote add $vault "ext::git vault wrap $vault %S $url"
+        ;;
+    "rm")
+        if [[ $# < 2 ]]; then
+            usage
+            exit
+        fi
+
+        vault=$2
+
+        git remote rm $vault
+        git config --remove-section vault.$vault
         ;;
     "wrap")
         if [[ $# < 4 ]]; then
