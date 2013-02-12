@@ -129,13 +129,14 @@ case $1 in
         command=$3
         url=$4
 
-        set_enc_options $vault
-
         if [ ! -f $url ]; then
-            create_repo $url
+            set_enc_options $vault && \
+            create_repo $url       && \
+            wrap $command $url
+        else
+            set_enc_options $vault && \
+            wrap $command $url
         fi
-
-        wrap $command $url
         ;;
     *)
         usage
